@@ -16,8 +16,6 @@
     </style>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
-
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -110,7 +108,7 @@
 
                 <div class="form-group">
                     <div class="col-md-4">
-                        <button id="submit" name="submit" class="btn btn-primary">Generate</button>
+                        <button id="submit" name="submit" type="button" class="btn btn-primary">Generate</button>
                     </div>
                 </div>
             </div>
@@ -133,26 +131,36 @@
             return chunks.join('-');
         }
 
-        $(document).ready(function () {
+        function download(filename, text) {
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:application/x-apple-aspen-config;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
 
-            function download(filename, text) {
-                var element = document.createElement('a');
-                element.setAttribute('href', 'data:application/x-apple-aspen-config;charset=utf-8,' + encodeURIComponent(text));
-                element.setAttribute('download', filename);
-                element.style.display = 'none';
-                document.body.appendChild(element);
-                element.click();
-                document.body.removeChild(element);
+        // jQuery replacements
+        function ready(fn) {
+            if (document.attachEvent ? document.readyState === 'complete' : document.readyState !== 'loading') {
+                fn();
+            } else {
+                document.addEventListener('DOMContentLoaded', fn);
             }
+        }
+        var get = document.getElementById.bind(document);
 
-            $('#autoconnect').change(function () {
-                if ($('#autoconnect').val().includes('wifi'))
-                    $('#ssidformgroup').show();
+        ready(function () {
+
+            get('autoconnect').addEventListener('change', function () {
+                if (get('autoconnect').value.includes('wifi'))
+                    get('ssidformgroup').style.display = '';
                 else
-                    $('#ssidformgroup').hide();
+                    get('ssidformgroup').style.display = 'none';
             });
 
-            $('#submit').click(function (e) {
+            get('submit').addEventListener('click', function (e) {
                 e.preventDefault();
 
                 var xmlString = '';
@@ -170,8 +178,8 @@
                 xmlString += '        <key>LocalIdentifierType</key>\n';
                 xmlString += '        <string>KeyID</string>\n';
                 xmlString += '        <key>RemoteAddress</key>\n';
-                xmlString += '        <string>{{hostname}}</string>\n'; // hostname
-                xmlString += '        {{ipSecParameters}}'; // ipSecParameters
+                xmlString += '        <string>{{hostname}}</string>\n';         // hostname
+                xmlString += '        {{ipSecParameters}}';                     // ipSecParameters
                 xmlString += '      </dict>\n';
                 xmlString += '      <key>IPv4</key>\n';
                 xmlString += '      <dict>\n';
@@ -187,7 +195,7 @@
                 xmlString += '      <key>PayloadType</key>\n';
                 xmlString += '      <string>com.apple.vpn.managed</string>\n';
                 xmlString += '      <key>PayloadUUID</key>\n';
-                xmlString += '      <string>{{uuid1}}</string>\n'; // uuid1
+                xmlString += '      <string>{{uuid1}}</string>\n';              // uuid1
                 xmlString += '      <key>PayloadVersion</key>\n';
                 xmlString += '      <integer>1</integer>\n';
                 xmlString += '      <key>Proxies</key>\n';
@@ -198,21 +206,21 @@
                 xmlString += '        <integer>0</integer>\n';
                 xmlString += '      </dict>\n';
                 xmlString += '      <key>UserDefinedName</key>\n';
-                xmlString += '      <string>{{name}}</string>\n'; // name
+                xmlString += '      <string>{{name}}</string>\n';               // name
                 xmlString += '      <key>VPNType</key>\n';
                 xmlString += '      <string>IPSec</string>\n';
                 xmlString += '    </dict>\n';
                 xmlString += '  </array>\n';
                 xmlString += '  <key>PayloadDisplayName</key>\n';
-                xmlString += '  <string>{{name}}</string>\n'; // name
+                xmlString += '  <string>{{name}}</string>\n';                   // name
                 xmlString += '  <key>PayloadIdentifier</key>\n';
-                xmlString += '  <string>{{identifier}}</string>\n'; // identifier
+                xmlString += '  <string>{{identifier}}</string>\n';             // identifier
                 xmlString += '  <key>PayloadRemovalDisallowed</key>\n';
                 xmlString += '  <false/>\n';
                 xmlString += '  <key>PayloadType</key>\n';
                 xmlString += '  <string>Configuration</string>\n';
                 xmlString += '  <key>PayloadUUID</key>\n';
-                xmlString += '  <string>{{uuid2}}</string>\n'; // uuid2
+                xmlString += '  <string>{{uuid2}}</string>\n';                  // uuid2
                 xmlString += '  <key>PayloadVersion</key>\n';
                 xmlString += '  <integer>1</integer>\n';
                 xmlString += '</dict>\n';
@@ -240,16 +248,16 @@
                 var ipSecParameters = '';
 
                 // required inputs
-                var name = $('#name').val(),
-                    identifier = $('#identifier').val(),
-                    autoconnect = $('#autoconnect').val(),
-                    hostname = $('#hostname').val();
+                var name = get('name').value,
+                    identifier = get('identifier').value,
+                    autoconnect = get('autoconnect').value,
+                    hostname = get('hostname').value;
                 // optional inputs
-                var username = $('#username').val(),
-                    password = $('#password').val(),
-                    groupname = $('#groupname').val(),
-                    sharedsecret = $('#sharedsecret').val(),
-                    ssids = $('#ssids').val();
+                var username = get('username').value,
+                    password = get('password').value,
+                    groupname = get('groupname').value,
+                    sharedsecret = get('sharedsecret').value,
+                    ssids = get('ssids').value;
 
                 // check required inputs
                 if (!name)
